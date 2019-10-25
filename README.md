@@ -1,2 +1,2 @@
 # PlataformerGame
-A plataformer game made with pygame
+A plataformer game made with pygame and tiled
