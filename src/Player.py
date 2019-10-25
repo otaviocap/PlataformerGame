@@ -1,5 +1,6 @@
 import pygame
 from Constants import *
+import os.path
 vec = pygame.math.Vector2
 
 
@@ -7,9 +8,12 @@ class Player(pygame.sprite.Sprite):
     def __init__(self, game, x=0, y=0, sizeX=10, sizeY=10):
         super().__init__()
         self.direction = 'left'
-
         self.game = game
-        self.image = pygame.image.load('../assets/player.png')
+        try:
+            self.image = pygame.image.load(os.path.join('../assets/', 'player.png'))
+        except:
+            self.image = pygame.image.load(os.path.join('assets/', 'player.png'))
+        
         self.image = pygame.transform.scale(self.image, (int(self.image.get_size()[0]*TILESIZEMULTI/3), int(self.image.get_size()[1]*TILESIZEMULTI/3)))
         self.rect = pygame.Rect(x, y, self.image.get_rect().width, self.image.get_rect().height)
         self.rect.center = (SCREEN_SIZE[0] / 2, SCREEN_SIZE[1] / 2)
@@ -38,8 +42,8 @@ class Player(pygame.sprite.Sprite):
                 self.vel.y = -3
 
     def jump(self):
-        # jump only if standing on a platform
         if self.jumps > 0:
+            self.game.sounds.play("Jump")
             self.jumps -= 1
             self.vel.y = -self.playerjump
 

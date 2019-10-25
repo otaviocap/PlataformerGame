@@ -4,14 +4,19 @@ from Player import *
 from Wall import *
 from Camera import *
 from Constants import *
+from Sound import *
 import pygame
 import random
+import os.path
 
 class game():
 
     def __init__(self):
         pygame.init()
         pygame.font.init()
+        pygame.mixer.init()
+        self.sounds = Sound()
+        self.sounds.playMusic()
         self.font = pygame.font.Font(None, 50)
         self.screenSize = SCREEN_SIZE
         self.fps = FPS
@@ -21,18 +26,17 @@ class game():
         self.clock = pygame.time.Clock()
         self.time = pygame.time.get_ticks()
         self.timeTimer = pygame.time.get_ticks()
-        self.timer = 5
+        self.timer = 25
         self.points = 0
         self.gameOver = False
 
     def new(self):
         try:
-            self.mapPath = '../assets/map1.tmx'
+            self.mapPath = os.path.join("../assets/", "map1.tmx")
             self.map = mapLoader(self.mapPath)
         except:
-            self.mapPath = '../assets\\map1.tmx'
+            self.mapPath = os.path.join("assets/", "map1.tmx")
             self.map = mapLoader(self.mapPath)
-
         self.mapImg = self.map.makeMap(self)
         self.mapRect = self.mapImg.get_rect()
         self.frontSprites = pygame.sprite.Group()

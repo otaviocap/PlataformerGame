@@ -1,5 +1,6 @@
 from Constants import *
 import pygame
+import os.path
 
 class Goal(pygame.sprite.Sprite):
 
@@ -21,7 +22,10 @@ class Goal(pygame.sprite.Sprite):
 
     
     def getStates(self):
-        states = pygame.image.load('../assets/goal.png')
+        try:
+            states = pygame.image.load(os.path.join('../assets/', 'goal.png'))
+        except:
+            states= pygame.image.load(os.path.join('assets/', 'goal.png'))
         self.states = []
         pos = [-32,0]
         for i in range(2):
@@ -53,6 +57,7 @@ class Goal(pygame.sprite.Sprite):
 
         hits = self.rect.colliderect(self.game.player)
         if hits and not self.game.gameOver:
+            self.game.sounds.play("Collect")
             self.game.points += 1
             self.game.timer += 2.5
             self.kill()
