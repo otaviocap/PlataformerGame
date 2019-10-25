@@ -7,8 +7,8 @@ class Camera():
         self.width = width
         self.height = height
         self.camera = pygame.Rect(0,0, self.width, self.height)
-        self.screenHeight = 1200
-        self.screenWidth = 720
+        self.screenHeight = SCREEN_SIZE[0]
+        self.screenWidth = SCREEN_SIZE[1]
 
     def apply(self, entity):
         return entity.rect.move(self.camera.topleft)

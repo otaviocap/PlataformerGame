@@ -52,8 +52,8 @@ class Goal(pygame.sprite.Sprite):
         self.rect.x = self.x
 
         hits = self.rect.colliderect(self.game.player)
-        if hits:
+        if hits and not self.game.gameOver:
             self.game.points += 1
-            self.game.timer += 2.5 * 1000
+            self.game.timer += 2.5
             self.kill()
             

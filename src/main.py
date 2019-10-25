@@ -21,9 +21,9 @@ class game():
         self.clock = pygame.time.Clock()
         self.time = pygame.time.get_ticks()
         self.timeTimer = pygame.time.get_ticks()
-        self.timer = 10
+        self.timer = 5
         self.points = 0
-
+        self.gameOver = False
 
     def new(self):
         try:
@@ -76,9 +76,12 @@ class game():
             self.time = pygame.time.get_ticks()
             Goal(self, random.choice(self.positions))
         
-        if (pygame.time.get_ticks() - self.timeTimer) / 1000 > 10:
+        if (pygame.time.get_ticks() - self.timeTimer) / 1000 > .5:
             self.timeTimer = pygame.time.get_ticks()
-            self.timer -= 1
+            self.timer -= .5
+
+        if (self.timer < 0):
+            self.gameOver = True
 
         self.player.events()
 
@@ -87,7 +90,6 @@ class game():
         self.camera.update(self.player)
         self.goals.update()
         self.player.update()
-        self.timer -= pygame.time.get_ticks() 
 
     def draw(self):
         self.screen.fill((0, 0, 0))
@@ -96,8 +98,15 @@ class game():
         for i in self.goals:
             self.screen.blit(i.image, self.camera.apply(i))
         self.screen.blit(self.map.upperLayer, self.camera.apply_rect(self.mapRect))
-        self.screen.blit(self.font.render(str(self.points), True, (255,255,255)), (SCREEN_SIZE[0]/2,30))
-        self.screen.blit(self.font.render(str(int(self.timer/1000)), True, (255,255,255)), (SCREEN_SIZE[0]/2,70))
+        if not self.gameOver:
+            strs = "Pontos: " + str(self.points) + " | Tempo: " + str(self.timer)
+            self.screen.blit(self.font.render(strs, True, (255,255,255)), ((SCREEN_SIZE[0]-350)/2,30))
+        else:
+            strs = "Parabéns você conseguiu"
+            str2 =  str(self.points) + " pontos"
+            self.screen.blit(self.font.render(strs, True, (255,255,255)), (((SCREEN_SIZE[0]-450)/2,SCREEN_SIZE[1]/2)))
+            self.screen.blit(self.font.render(str2, True, (255,255,255)), (((SCREEN_SIZE[0]-200)/2,(SCREEN_SIZE[1]+65)/2)))
+
         pygame.display.flip()
 
 if __name__ == '__main__':
