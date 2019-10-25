@@ -1,23 +1,25 @@
-from enemy import *
-from mapLoader import mapLoader
-from player import *
-from wall import *
-from camera import *
+from Enemy import *
+from MapLoader import mapLoader
+from Player import *
+from Wall import *
+from Camera import *
+from Constants import *
 import pymunk
+import pygame
+import pymunk.pygame_util 
 
 class game():
 
     def __init__(self):
         pygame.init()
-        self.speedB = 5
-        self.screenSize = (1200, 780)
-        self.fps = 60
+        self.screenSize = SCREEN_SIZE
+        self.fps = FPS
         self.screen = pygame.display.set_mode(self.screenSize)
         self.screen.set_alpha(128)
-        pygame.display.set_caption("Tilemap game")
+        pygame.display.set_caption(SCREEN_TITLE)
         self.clock = pygame.time.Clock()
         self.space = pymunk.Space()
-        self.space.gravity = 0, -1000
+        self.space.gravity = GRAVITY
 
 
     def new(self):
@@ -27,6 +29,7 @@ class game():
         except:
             self.mapPath = '../assets\\map1.tmx'
             self.map = mapLoader(self.mapPath)
+
         self.mapImg = self.map.makeMap(self)
         self.mapRect = self.mapImg.get_rect()
         self.frontSprites = pygame.sprite.Group()
@@ -38,11 +41,11 @@ class game():
 
         for i in self.map.tmdata.objects:
             if i.name == 'wall':
-                Wall(self, i.x, i.y, i.width, i.height)
+                Wall(self, i.x * TILESIZEMULTI, i.y * TILESIZEMULTI, i.width * TILESIZEMULTI, i.height * TILESIZEMULTI)
             elif i.name == 'enemy':
                 Enemy(i.x, i.y, i.width, i.height)
             elif i.name == 'player':
-                self.player = Player(self, i.x, i.y, i.width, i.height)
+                self.player = Player(self, i.x * TILESIZEMULTI, i.y * TILESIZEMULTI, i.width, i.height)
 
         self.camera = Camera(self.mapRect.width, self.mapRect.height)
 
@@ -55,12 +58,18 @@ class game():
 
 
     def events(self):
-        self.space.step(0.02)
+        self.space.step(1/60)
         keys = pygame.key.get_pressed()
         for e in pygame.event.get():
             if e.type == pygame.QUIT:
                 pygame.quit()
                 exit()
+            if e.type == pygame.KEYDOWN:
+                if e.key == pygame.K_w:
+                    self.player.jump()
+            if e.type == pygame.KEYUP:
+                if e.key == pygame.K_w:
+                    self.player.jump_cut()
         
         self.player.events()
 

@@ -1,11 +1,12 @@
 import pygame
+from Constants import *
 
 class Camera():
 
     def __init__(self, height, width):
-        self.camera = pygame.Rect(0,0, width, height)
         self.width = width
         self.height = height
+        self.camera = pygame.Rect(0,0, self.width, self.height)
         self.screenHeight = 1200
         self.screenWidth = 720
 

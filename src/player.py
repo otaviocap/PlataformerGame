@@ -1,106 +1,97 @@
 import pygame
-import pymunk
+from Constants import *
+vec = pygame.math.Vector2
 
 
 class Player(pygame.sprite.Sprite):
     def __init__(self, game, x=0, y=0, sizeX=10, sizeY=10):
         super().__init__()
         self.direction = 'left'
+
         self.game = game
         self.image = pygame.image.load('../assets/player.png')
         self.image = pygame.transform.scale(self.image, (self.image.get_size()[0], self.image.get_size()[1]))
         self.rect = pygame.Rect(x, y, self.image.get_rect().width, self.image.get_rect().height)
-        self.x = x
-        self.y = y
-        self.w = sizeX
-        self.h = sizeY
-        self.speed = 4
-        self.cooldown = 0
+        self.rect.center = (SCREEN_SIZE[0] / 2, SCREEN_SIZE[1] / 2)
+        self.pos = vec(x, y)
+        self.vel = vec(0, 0)
+        self.acc = vec(0, 0)
         self.jumping = False
-        self.body = pymunk.Body(1,1666)
-        self.body.position = x, y
 
 
     def update(self):
-        self.move()
-        if self.cooldown <= 5:
-            self.cooldown = 5
-        self.x += self.vx
-        self.y += self.vy
-        self.rect.x = self.x
-        self.collideWall('x')
-        self.rect.y = self.y
-        self.collideWall('y')
+        self.acc = vec(0, 1)
+        self.events()
 
+        self.acc += self.vel * DEFAULT_FRICTION
+        self.vel += self.acc
+        self.pos += self.vel + 0.5 * self.acc
 
-    def move(self):
-        self.useSpeed = self.speed
-        self.vx, self.vy = 0, 1
+        self.rect.midbottom = self.pos
+        self.collideWall()
 
-        key = pygame.key.get_pressed()
+    def jump_cut(self):
+        if self.jumping:
+            if self.vel.y < -3:
+                self.vel.y = -3
 
-        if key[pygame.K_a]:
-            self.vx += -self.speed
-        if key[pygame.K_d]:
-            self.vx += self.speed
-        if key[pygame.K_w] and not self.jumping:
-            self.vy += -self.speed * 2
+    def jump(self):
+        # jump only if standing on a platform
+        self.rect.y += 2
+        hits = pygame.sprite.spritecollide(self, self.game.walls, False)
+        self.rect.y -= 2
+        if hits and not self.jumping:
             self.jumping = True
+            self.vel.y = -PLAYER_JUMP
 
-    def collideWall(self, dir):
-        if dir == 'x':
-            hits = pygame.sprite.spritecollide(self, self.game.walls, False)
-            if hits:
-                if self.vx > 0:
-                    self.x = hits[0].rect.left - self.rect.width
-                if self.vx < 0:
-                    self.x = hits[0].rect.right
-                self.vx = 0
-                self.rect.x = self.x
-        if dir == 'y':
-            hits = pygame.sprite.spritecollide(self, self.game.walls, False)
-            if hits:
-                if self.vy > 0:
-                    self.y = hits[0].rect.top - self.rect.height
-                if self.vy < 0:
-                    self.y = hits[0].rect.bottom
-                self.vy = 0
-                self.rect.y = self.y
+
+    def collideWall(self):
+        '''
+        hits = pygame.sprite.spritecollide(self, self.game.walls, False)
+        if hits:
+            lowest = hits[0]
+            for hit in hits:
+                if hit.rect.bottom > lowest.rect.bottom:
+                    lowest = hit
+            if self.pos.y < lowest.rect.centery:
+                self.pos.y = lowest.rect.top + .3
+                self.vel.y = 0
                 self.jumping = False
-
-    def getImg(self):
-        return self.image
+        '''
+        hits = pygame.sprite.spritecollide(self, self.game.walls, False)
+        if hits:
+            if self.pos.y - hits[0].rect.bottom < 0:
+                print("a")
+                self.pos.y = hits[0].rect.bottom - self.rect.height
+                
+            elif self.rect.bottom - hits[0].rect.top > 0:
+                print("b")
+                self.pos.y = hits[0].rect.bottom + self.rect.width
+     
+            self.vel.y = 0
+            self.jumping = False
 
     def __transformImgSide(self):
         if self.direction == "left":
             self.image = pygame.transform.flip(self.image, True, False)
         elif self.direction == "right":
             self.image = pygame.transform.flip(self.image, True, False)
+   
 
     def setDirection(self, direction):
         if not self.direction == direction:
             self.direction = direction
             self.__transformImgSide()
 
-    def resetLocation(self):
-        self.x = self.spawnX
-        self.y = self.spawnY
-
     def events(self):
         key = pygame.key.get_pressed()
 
-        if self.cooldown <= 0:
-            if key[pygame.K_LEFT]:
-                # Bullet('left', self.game.speedB, self.game, self)
-                self.setDirection('left')
-                self.cooldown = 0
-            elif key[pygame.K_RIGHT]:
-                # Bullet('right', self.game.speedB, self.game, self)
-                self.setDirection('right')
-                self.cooldown = 0
-            elif key[pygame.K_UP]:
-                # Bullet('up', self.game.speedB, self.game, self)
-                self.cooldown = 0
-            elif key[pygame.K_DOWN]:
-                # Bullet('down', self.game.speedB, self.game, self)
-                self.cooldown = 0
+        if key[pygame.K_d]:
+            self.acc.x = DEFAULT_ACC
+            self.setDirection('left')
+        if key[pygame.K_a]:
+            self.acc.x = -DEFAULT_ACC
+            self.setDirection('right')
+        if key[pygame.K_LSHIFT]:
+            self.acc.x *= 2
+            self.setDirection('right')

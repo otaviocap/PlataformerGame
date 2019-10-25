@@ -1,13 +1,14 @@
 import pygame
 import pytmx
+from Constants import TILESIZEMULTI
 
 
 class mapLoader:
 
     def __init__(self, file):
         tm = pytmx.load_pygame(file, pixelalpha=True)
-        self.width = tm.width * tm.tilewidth
-        self.height = tm.height * tm.tileheight
+        self.width = tm.width * tm.tilewidth * TILESIZEMULTI
+        self.height = tm.height * tm.tileheight * TILESIZEMULTI
         self.tmdata = tm
 
 
@@ -24,14 +25,14 @@ class mapLoader:
                             if gid == 0:
                                 pass
                             else:
-                                tempSurface2.blit(tile, (x * self.tmdata.tilewidth, y * self.tmdata.tileheight))
+                                tempSurface2.blit(pygame.transform.scale(tile, (self.tmdata.tilewidth * TILESIZEMULTI, self.tmdata.tileheight * TILESIZEMULTI)), (x * self.tmdata.tilewidth * TILESIZEMULTI, y * self.tmdata.tileheight * TILESIZEMULTI))
                     self.upperLayer = tempSurface2
                     
             elif isinstance(layers, pytmx.TiledTileLayer):
                 for x, y, gid in layers:
                     tile = ti(gid)
                     if tile:
-                        tempSurface3.blit(tile, (x * self.tmdata.tilewidth, y * self.tmdata.tileheight))
+                        tempSurface3.blit(pygame.transform.scale(tile, (self.tmdata.tilewidth * TILESIZEMULTI, self.tmdata.tileheight * TILESIZEMULTI)), (x * self.tmdata.tilewidth * TILESIZEMULTI, y * self.tmdata.tileheight * TILESIZEMULTI))
                 self.underLayer = tempSurface3
 
 
