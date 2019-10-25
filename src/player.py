@@ -45,18 +45,6 @@ class Player(pygame.sprite.Sprite):
 
 
     def collideWall(self):
-        '''
-        hits = pygame.sprite.spritecollide(self, self.game.walls, False)
-        if hits:
-            lowest = hits[0]
-            for hit in hits:
-                if hit.rect.bottom > lowest.rect.bottom:
-                    lowest = hit
-            if self.pos.y < lowest.rect.centery:
-                self.pos.y = lowest.rect.top + .3
-                self.vel.y = 0
-                self.jumping = False
-        '''
         hits = pygame.sprite.spritecollide(self, self.game.walls, False)
         if hits:
             if self.pos.y - hits[0].rect.bottom < 0:

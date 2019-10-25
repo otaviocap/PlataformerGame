@@ -44,13 +44,16 @@ class Goal(pygame.sprite.Sprite):
             self.animationTimer = pygame.time.get_ticks()
             self.going = False if self.going else True
 
-
-
         if (self.going):
             self.y -= .2
         else:
             self.y += .2
         self.rect.y = self.y 
         self.rect.x = self.x
-        
+
+        hits = self.rect.colliderect(self.game.player)
+        if hits:
+            self.game.points += 1
+            self.game.timer += 2.5 * 1000
+            self.kill()
             

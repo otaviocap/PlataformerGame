@@ -11,6 +11,8 @@ class game():
 
     def __init__(self):
         pygame.init()
+        pygame.font.init()
+        self.font = pygame.font.Font(None, 50)
         self.screenSize = SCREEN_SIZE
         self.fps = FPS
         self.screen = pygame.display.set_mode(self.screenSize)
@@ -18,6 +20,9 @@ class game():
         pygame.display.set_caption(SCREEN_TITLE)
         self.clock = pygame.time.Clock()
         self.time = pygame.time.get_ticks()
+        self.timeTimer = pygame.time.get_ticks()
+        self.timer = 10
+        self.points = 0
 
 
     def new(self):
@@ -34,7 +39,6 @@ class game():
         self.backSprites = pygame.sprite.Group()
         self.walls = pygame.sprite.Group()
         self.goals = pygame.sprite.Group()
-        self.enemies = pygame.sprite.Group()
         self.positions = []
 
         for i in self.map.tmdata.objects:
@@ -61,15 +65,20 @@ class game():
             if e.type == pygame.QUIT:
                 pygame.quit()
                 exit()
-            if e.type == pygame.KEYDOWN:
+            if e.type == pygame.KEYDOWN:    
                 if e.key == pygame.K_w:
                     self.player.jump()
             if e.type == pygame.KEYUP:
                 if e.key == pygame.K_w:
                     self.player.jump_cut()
         
-        if (len(self.goals) == 0 or (self.time - pygame.time.get_ticks()) / 1000 > 5):
+        if (len(self.goals) == 0 or (pygame.time.get_ticks() - self.time) / 1000 > 10):
+            self.time = pygame.time.get_ticks()
             Goal(self, random.choice(self.positions))
+        
+        if (pygame.time.get_ticks() - self.timeTimer) / 1000 > 10:
+            self.timeTimer = pygame.time.get_ticks()
+            self.timer -= 1
 
         self.player.events()
 
@@ -78,6 +87,7 @@ class game():
         self.camera.update(self.player)
         self.goals.update()
         self.player.update()
+        self.timer -= pygame.time.get_ticks() 
 
     def draw(self):
         self.screen.fill((0, 0, 0))
@@ -86,6 +96,8 @@ class game():
         for i in self.goals:
             self.screen.blit(i.image, self.camera.apply(i))
         self.screen.blit(self.map.upperLayer, self.camera.apply_rect(self.mapRect))
+        self.screen.blit(self.font.render(str(self.points), True, (255,255,255)), (SCREEN_SIZE[0]/2,30))
+        self.screen.blit(self.font.render(str(int(self.timer/1000)), True, (255,255,255)), (SCREEN_SIZE[0]/2,70))
         pygame.display.flip()
 
 if __name__ == '__main__':
